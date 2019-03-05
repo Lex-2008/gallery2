@@ -1,35 +1,26 @@
 <!doctype html>
 
-<style>
+<style id="main-style">
 #albums a{
 	display:inline-block;
 	text-align: center;
-	width:100px;
-	height:calc(100px + 2em + 8px);
+	width:{album_width}px;
+	height:calc({album_height}px + 2em + 8px);
 	overflow:hidden;
 }
 #albums a div{
 	background: url('thumbs.jpg');
-	width:100px;
-	height:100px;
+	width:{album_width}px;
+	height:{album_height}px;
 }
-</style>
 
-<div id="albums"></div>
-
-<style>
 #thumbnails a{
 	display:inline-block;
 	text-align: center;
-	width:100px;
-	height:100px;
+	width:{photo_width}px;
+	height:{photo_height}px;
 }
-</style>
 
-<div id="thumbnails"></div>
-<style id="thumbnails-style"></style>
-
-<style>
 #view, #prev, #next, #left, #right {
 	position:absolute;
 	transform: translateY(-50%);
@@ -37,10 +28,6 @@
 }
 #close {
 	position:absolute;
-}
-#prev, #next {
-	max-width: 200px;
-	max-height: 200px;
 }
 #left, #right, #close {
 	  font-size: 300px;
@@ -53,8 +40,12 @@
 #close {
 	margin-top: -0.7ex;
 }
-</style>
 
+</style>
+<style id="thumbnails-style"></style>
+
+<div id="albums"></div>
+<div id="thumbnails"></div>
 <div id="single-photo">
 	<img id="view">
 	<a id="left">&laquo;</a>
@@ -62,8 +53,12 @@
 	<a id="close">&times;</a>
 </div>
 
-
 <script>
+var ALBUM_WIDTH=300;
+var ALBUM_HEIGHT=200;
+var PHOTO_WIDTH=100;
+var PHOTO_HEIGHT=100;
+
 function $(q){return document.querySelector(q)};
 function gebi(q){return document.getElementById(q)};
 
@@ -124,6 +119,15 @@ function readData(){
 	}
 }
 
+function updateCSS(){
+	gebi('main-style').innerHTML=templateData(gebi('main-style').innerHTML,{
+		album_width: ALBUM_WIDTH,
+		album_height: ALBUM_HEIGHT,
+		photo_width: PHOTO_WIDTH,
+		photo_height: PHOTO_HEIGHT,
+	});
+}
+
 // https://stackoverflow.com/a/378001
 function templateData(template, data){
 	return template.replace(/{(\w*)}/g,function(m,key){return data[key]});
@@ -131,13 +135,13 @@ function templateData(template, data){
 
 function showAllAlbums(){
 	gebi('albums').innerHTML=albums.map(function(name, index){
-		return templateData('<a href="#{name}"><div style="background-position: 0 -{offset}px"></div>{name}</a>',{name:name, offset:index*100});
+		return templateData('<a href="#{name}"><div style="background-position: 0 -{offset}px"></div>{name}</a>',{name:name, offset:index*ALBUM_HEIGHT});
 	}).join(' ');
 }
 
 function showOneAlbum(album){
 	gebi('thumbnails').innerHTML=photos[album].map(function(photo, index){
-		return templateData('<a href="#{album}/{photo}" style="background-position: 0 -{offset}px"></a>',{album:album, photo:photo, offset:index*100});
+		return templateData('<a href="#{album}/{photo}" style="background-position: 0 -{offset}px"></a>',{album:album, photo:photo, offset:index*PHOTO_HEIGHT});
 	}).join(' ');
 	gebi('thumbnails-style').innerHTML="#thumbnails a{background: url('"+album+".jpg');}";
 }
@@ -1536,5 +1540,6 @@ DSC_1063.JPG
 
 <script>
 readData();
+updateCSS();
 window.onhashchange();
 </script>
