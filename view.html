@@ -9,7 +9,7 @@
 	overflow:hidden;
 }
 #albums a div{
-	background: url('thumbs.jpg');
+	background: url('thumbs/_.jpg');
 	width:{album_width}px;
 	height:{album_height}px;
 }
@@ -154,11 +154,11 @@ function showOneAlbum(album){
 	gebi('thumbnails').innerHTML=photos[album].map(function(photo, index){
 		return templateData('<a href="#{album}/{photo}" style="background-position: 0 -{offset}px"></a>',{album:album, photo:photo, offset:index*PHOTO_HEIGHT});
 	}).join(' ');
-	gebi('thumbnails-style').innerHTML="#thumbnails a{background: url('"+album+".jpg');}";
+	gebi('thumbnails-style').innerHTML="#thumbnails a{background: url('thumbs/"+album+".jpg');}";
 }
 
 function showOnePhoto(album, photo){
-	view.src=templateData('{album}/{photo}',{album:album, photo:photo});
+	view.src=templateData('photos/{album}/{photo}',{album:album, photo:photo});
 	close.href="#"+album;
 	var i=photos[album].indexOf(photo);
 	//TODO: i==-1 and max
@@ -199,7 +199,7 @@ window.onhashchange=function(){
 
 
 
-<div id="data" style="display:none">
+<div id="data" style="display:none"> <!-- do not change this line -->
 08-10-mobile-photos/
 *2008-05-26_14:36:03.747.jpg
 2008-05-31_22:52:42.125.jpg
@@ -1548,7 +1548,7 @@ DSC_1110.JPG
 DSC_1057.JPG
 DSC_1063.JPG
 .
-</div>
+</div> <!-- do not change this line -->
 
 <script>
 readData();
