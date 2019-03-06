@@ -20,6 +20,9 @@
 	width:{photo_width}px;
 	height:{photo_height}px;
 }
+#photos h1 a{
+	text-decoration:none;
+}
 
 #view, #prev, #next, #left, #right {
 	position:absolute;
@@ -30,6 +33,7 @@
 	position:absolute;
 }
 #left, #right, #close {
+	  color: black;
 	  font-size: 300px;
 	  font-weight: bold;
 	  text-decoration: none;
@@ -45,7 +49,14 @@
 <style id="thumbnails-style"></style>
 
 <div id="albums"></div>
-<div id="thumbnails"></div>
+<div id="photos">
+	<h1>
+		<a href="#">&laquo;</a>
+		<span></span>
+	</h1>
+	<div id="thumbnails">
+	</div>
+</div>
 <div id="single-photo">
 	<img id="view">
 	<a id="left">&laquo;</a>
@@ -168,17 +179,18 @@ window.onhashchange=function(){
 	if(!album){
 		showAllAlbums();
 		gebi('albums').style.display='';
-		gebi('thumbnails').style.display='none';
+		gebi('photos').style.display='none';
 		gebi('single-photo').style.display='none';
 	} else if(!photo){
 		showOneAlbum(album);
+		$('#photos h1 span').innerText=album;
 		gebi('albums').style.display='none';
-		gebi('thumbnails').style.display='';
+		gebi('photos').style.display='';
 		gebi('single-photo').style.display='none';
 	} else {
 		showOnePhoto(album, photo);
 		gebi('albums').style.display='none';
-		gebi('thumbnails').style.display='none';
+		gebi('photos').style.display='none';
 		gebi('single-photo').style.display='';
 	}
 }
