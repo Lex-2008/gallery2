@@ -1,9 +1,11 @@
 <!doctype html>
 
 <style id="main-style">
+#albums{
+	text-align: center;
+}
 #albums a{
 	display:inline-block;
-	text-align: center;
 	width:{album_width}px;
 	height:calc({album_height}px + 2em + 8px);
 	overflow:hidden;
@@ -14,9 +16,11 @@
 	height:{album_height}px;
 }
 
+#thumbnails{
+	text-align: center;
+}
 #thumbnails a{
 	display:inline-block;
-	text-align: center;
 	width:{photo_width}px;
 	height:{photo_height}px;
 }
@@ -1569,3 +1573,4 @@ readData();
 updateCSS();
 window.onhashchange();
 </script>
+
