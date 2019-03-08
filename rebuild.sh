@@ -18,6 +18,7 @@ ls photos | while read album; do
 	echo $album/
 	ls -1 photos/$album | tee $LISTS/$album.txt 
 	echo "photos/$album/$(head -n1 $LISTS/$album.txt)" >> $LISTS/_.txt
+	echo "Working on [$album] ($(cat $LISTS/$album.txt | wc -l) files)..." >&2
 	( cd photos/$album
 		convert -strip -thumbnail ${PHOTO_WIDTH}x${PHOTO_HEIGHT} -gravity center -extent ${PHOTO_WIDTH}x${PHOTO_HEIGHT} -append @$LISTS/$album.txt $THUMBS/$album.jpg
 	)
@@ -25,9 +26,8 @@ ls photos | while read album; do
 done >>$INDEX.new
 sed -n '\?^</div> <!-- do not change this line -->$?,/EOF/p' $INDEX >>$INDEX.new
 
+mv $INDEX.new $INDEX
 
+echo "Building final preview ($(cat $LISTS/_.txt | wc -l) files)..."
 convert -strip -thumbnail ${ALBUM_WIDTH}x${ALBUM_HEIGHT} -gravity center -extent ${ALBUM_WIDTH}x${ALBUM_HEIGHT} -append @$LISTS/_.txt $THUMBS/_.jpg
-
-
-
 
