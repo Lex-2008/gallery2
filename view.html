@@ -89,23 +89,25 @@ var close=gebi('close');
    2 = 
 
    */
-var poll = setInterval(function () {
-	if (view.naturalWidth) {
-		var windowRatio=window.innerWidth/window.innerHeight;
-		var imageRatio=view.naturalWidth/view.naturalHeight;
-		if(imageRatio > windowRatio){
-			view.width=window.innerWidth-16;
-			view.removeAttribute('height');
-		} else {
-			view.height=window.innerHeight-16;
-			view.removeAttribute('width');
-		}
-		var imageBorder=(window.innerWidth-view.width)/2;
-		view.style.left=imageBorder+'px';
-		left.style.left=right.style.right=Math.max(imageBorder-left.offsetWidth,0)+'px';
-		close.style.right=Math.max(imageBorder-close.offsetWidth,0)+'px';
+function layout(){
+	if (!view.naturalWidth) {
+		setTimeout(layout,10);
+		return false;
 	}
-}, 10);
+	var windowRatio=window.innerWidth/window.innerHeight;
+	var imageRatio=view.naturalWidth/view.naturalHeight;
+	if(imageRatio > windowRatio){
+		view.width=window.innerWidth-16;
+		view.removeAttribute('height');
+	} else {
+		view.height=window.innerHeight-16;
+		view.removeAttribute('width');
+	}
+	var imageBorder=(window.innerWidth-view.width)/2;
+	view.style.left=imageBorder+'px';
+	left.style.left=right.style.right=Math.max(imageBorder-left.offsetWidth,0)+'px';
+	close.style.right=Math.max(imageBorder-close.offsetWidth,0)+'px';
+};
 
 albums=[];
 photos={};
@@ -165,6 +167,8 @@ function showOneAlbum(album){
 }
 
 function showOnePhoto(album, photo){
+	// https://bugs.chromium.org/p/chromium/issues/detail?id=468915#c6
+	view.src='';
 	view.src=templateData('photos/{album}/{photo}',{album:album, photo:photo});
 	close.href="#"+album;
 	var i=photos[album].indexOf(photo);
@@ -199,8 +203,11 @@ window.onhashchange=function(){
 		gebi('albums').style.display='none';
 		gebi('photos').style.display='none';
 		gebi('single-photo').style.display='';
+		layout();
 	}
 }
+
+window.onresize=layout;
 
 </script>
 
