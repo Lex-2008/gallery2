@@ -95,8 +95,10 @@ var poll = setInterval(function () {
 			view.height=window.innerHeight-16;
 			view.removeAttribute('width');
 		}
-		left.style.left=right.style.right=close.style.right=view.style.left=(window.innerWidth-view.width)/2+'px';
-		close.style.top=(window.innerHeight-view.height)/2+'px';
+		var imageBorder=(window.innerWidth-view.width)/2;
+		view.style.left=imageBorder+'px';
+		left.style.left=right.style.right=Math.max(imageBorder-left.offsetWidth,0)+'px';
+		close.style.right=Math.max(imageBorder-close.offsetWidth,0)+'px';
 	}
 }, 10);
 
@@ -201,7 +203,7 @@ window.onhashchange=function(){
 
 <div id="data" style="display:none"> <!-- do not change this line -->
 08-10-mobile-photos/
-*2008-05-26_14:36:03.747.jpg
+2008-05-26_14:36:03.747.jpg
 2008-05-31_22:52:42.125.jpg
 2008-06-01_01:35:58.828.jpg
 2008-06-01_18:50:44.031.jpg
