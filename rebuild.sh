@@ -4,10 +4,12 @@ LISTS="$PWD/lists"
 THUMBS="$PWD/thumbs"
 INDEX=view.html
 
-ALBUM_WIDTH=300
-ALBUM_HEIGHT=200
-PHOTO_WIDTH=100
-PHOTO_HEIGHT=100
+ALBUM_WIDTH="$(sed '/^var ALBUM_WIDTH/!d;s/[^0-9]//g' $INDEX)"
+ALBUM_HEIGHT="$(sed '/^var ALBUM_HEIGHT/!d;s/[^0-9]//g' $INDEX)"
+PHOTO_WIDTH="$(sed '/^var PHOTO_WIDTH/!d;s/[^0-9]//g' $INDEX)"
+PHOTO_HEIGHT="$(sed '/^var PHOTO_HEIGHT/!d;s/[^0-9]//g' $INDEX)"
+
+echo ${ALBUM_WIDTH}x${ALBUM_HEIGHT} ${PHOTO_WIDTH}x${PHOTO_HEIGHT}
 
 rm $LISTS/_.txt
 
@@ -23,10 +25,6 @@ ls photos | while read album; do
 done >>$INDEX.new
 sed -n '\?^</div> <!-- do not change this line -->$?,/EOF/p' $INDEX >>$INDEX.new
 
-sed -i "s/^var ALBUM_WIDTH=.*/var ALBUM_WIDTH=$ALBUM_WIDTH;/;
-        s/^var ALBUM_HEIGHT=.*/var ALBUM_HEIGHT=$ALBUM_HEIGHT;/;
-        s/^var PHOTO_WIDTH=.*/var PHOTO_WIDTH=$PHOTO_WIDTH;/;
-        s/^var PHOTO_HEIGHT=.*/var PHOTO_HEIGHT=$PHOTO_HEIGHT;/;" $INDEX.new
 
 convert -strip -thumbnail ${ALBUM_WIDTH}x${ALBUM_HEIGHT} -gravity center -extent ${ALBUM_WIDTH}x${ALBUM_HEIGHT} -append @$LISTS/_.txt $THUMBS/_.jpg
 
