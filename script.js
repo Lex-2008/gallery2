@@ -1,4 +1,5 @@
 function $(q){return document.querySelector(q)};
+function $$(q){return document.querySelectorAll(q)};
 function gebi(q){return document.getElementById(q)};
 // https://stackoverflow.com/questions/805107/creating-multiline-strings-in-javascript/5571069#5571069
 function hereDoc(f) {
@@ -11,34 +12,30 @@ function templateData(template, data){
 	return template.replace(/{(\w*)}/g,function(m,key){return data[key]});
 }
 
+function ajax(url, cb){
+	var req = new XMLHttpRequest();
+	req.open('GET', url, true); 
+	req.onreadystatechange = function() {
+		if (req.readyState == 4) {
+			if(req.status == 200) {
+				cb(req.responseText);
+			}
+		}
+	};
+	req.send(null); 
+}
 
 albums=[];
 photos={};
 comments={};
 function readData(){
 	var lines=gebi('data').innerText.split('\n');
-	var dir='';
 	for(var i=1;i<lines.length;i++){ //note that here we ignore first line
-		line=lines[i];
-		if(line.slice(-1)=='/'){ //ends with '/'
-			dir=line.slice(0, -1);//remove last '/'
-			albums.push(dir);
-			photos[dir]=[];
-			comments[dir]={};
-		}else if(!line || line==='.' || !photos[dir]){
-			// do nothing
-			continue;
-		}else {
-			// remove first * - it's used elsewhere
-			if(line[0]=='*'){
-				line=line.slice(1);
-			}
-			var data=line.split('|');
-			photos[dir].push(data[0]);
-			if(data.length>0){
-				comments[dir][data[0]]=data;
-			}
-		}
+		line=lines[i].split('|');
+		if(line.length!=2) continue;
+		albums.push(line[0]);
+		photos[line[0]]=[];
+		photos[line[0]].length=line[1];
 	}
 }
 
@@ -49,10 +46,20 @@ function showAllAlbums(){
 }
 
 function showOneAlbum(album){
-	gebi('thumbnails').innerHTML=photos[album].map(function(photo, index){
-		return templateData('<a href="#{album}/{photo}" style="background-position: 0 -{offset}px"></a>',{album:album, photo:photo, offset:index*PHOTO_HEIGHT});
-	}).join(' ');
 	thumbs_style.innerHTML="#thumbnails a{background: url('thumbs/"+album+".jpg');}";
+	var a=Array(photos[album].length);
+	for(var i=0; i<photos[album].length; i++){
+		a[i]=templateData('<a href="#{album}/" style="background-position: 0 -{offset}px"></a>',{album:album, offset:i*PHOTO_HEIGHT});
+	}
+	gebi('thumbnails').innerHTML=a.join(' ');
+	ajax('lists/'+album+'.txt', function(text){
+		var lines=text.split('\n');
+		var links=$$('#thumbnails a');
+		for(var i=0; i<links.length; i++){
+			links[i].href+=lines[i];
+		}
+	});
+
 }
 
 function showOnePhoto(album, photo){
@@ -60,9 +67,12 @@ function showOnePhoto(album, photo){
 	view.src='';
 	view.src=templateData('photos/{album}/{photo}',{album:album, photo:photo});
 	close.href="#"+album;
-	var i=photos[album].indexOf(photo);
-	left.href=templateData('#{album}/{photo}',{album:album, photo:photos[album][Math.max(i-1,0)]});
-	right.href=templateData('#{album}/{photo}',{album:album, photo:photos[album][Math.min(i+1,photos[album].length-1)]});
+	ajax('lists/'+album+'.txt', function(text){
+		var lines=text.split('\n');
+		var i=lines.indexOf(photo);
+		left.href=templateData('#{album}/{photo}',{album:album, photo:lines[Math.max(i-1,0)]});
+		right.href=templateData('#{album}/{photo}',{album:album, photo:lines[Math.min(i+1,lines.length-1)]});
+	});
 }
 
 window.onresize=function(){
