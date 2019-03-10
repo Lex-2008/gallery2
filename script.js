@@ -81,8 +81,6 @@ window.onresize=function(){
 	}
 	var imageBorder=(window.innerWidth-view.width)/2;
 	view.style.left=imageBorder+'px';
-	left.style.left=right.style.right=Math.max(imageBorder-left.offsetWidth,0)+'px';
-	close.style.right=Math.max(imageBorder-close.offsetWidth,0)+'px';
 };
 
 window.onhashchange=function(){
@@ -176,23 +174,27 @@ function mainStyle() {/*!
 }
 #close {
 	position:absolute;
+	top: 8px;
+}
+#left {
+	left: 8px;
+}
+#close, #right {
+	right: 8px;
 }
 #left, #right, #close {
 	color: white;
-	font-size: 300px;
+	font-size: 60px;
 	font-weight: bold;
 	text-decoration: none;
-	transition: 0.6s ease;
-	border-radius: 30px;
-	background-color: rgba(0,0,0,0.8);
+	border-radius: 5px;
 	background-clip: content-box;
-	height: 1ex;
+	transition: 0.3s ease;
+	height: 1.33ex;
+	line-height: 1.3ex;
 }
-#left, #right {
-	line-height: 0.5ex;
-}
-#close {
-	line-height: 1ex;
+:hover #left, :hover #right, :hover #close {
+	background-color: rgba(0,0,0,0.8);
 }
 */};
 
@@ -208,8 +210,8 @@ function mainHTML() {/*!
 </div>
 <div id="single-photo">
 	<img id="view">
-	<a id="left">&laquo;</a>
-	<a id="right">&raquo;</a>
+	<a id="left">&lt;</a>
+	<a id="right">&gt;</a>
 	<a id="close">&times;</a>
 </div>
 */};
