@@ -27,7 +27,7 @@ function ajax(url, cb){
 
 albums=[];
 photos={};
-comments={};
+titles={};
 function readData(){
 	var lines=gebi('data').innerText.split('\n');
 	for(var i=1;i<lines.length;i++){ //note that here we ignore first line
@@ -37,11 +37,23 @@ function readData(){
 		photos[line[0]]=[];
 		photos[line[0]].length=line[1];
 	}
+	var lines=gebi('titles').innerText.split('\n');
+	for(var i=1;i<lines.length;i++){ //note that here we ignore first line
+		line=lines[i].split('|');
+		if(line.length!=2 || !line[1]) continue;
+		titles[line[0]]=line[1];
+	}
 }
 
 function showAllAlbums(){
 	gebi('albums').innerHTML=albums.map(function(name, index){
-		return templateData('<a href="#{name}"><div style="background-position: 0 -{offset}px"></div>{name}</a>',{name:name, offset:index*ALBUM_HEIGHT});
+		return templateData(
+				'<a href="#{name}"><div style="background-position: 0 -{offset}px"></div>{title}</a>',
+				{
+					name:name,
+					title:titles[name] || name,
+					offset:index*ALBUM_HEIGHT
+				});
 	}).join(' ');
 }
 
@@ -49,14 +61,20 @@ function showOneAlbum(album){
 	thumbs_style.innerHTML="#thumbnails a{background: url('thumbs/"+album+".jpg');}";
 	var a=Array(photos[album].length);
 	for(var i=0; i<photos[album].length; i++){
-		a[i]=templateData('<a href="#{album}/" style="background-position: 0 -{offset}px"></a>',{album:album, offset:i*PHOTO_HEIGHT});
+		a[i]=templateData(
+				'<a href="#{album}/" style="background-position: 0 -{offset}px"></a>',
+				{
+					album:album,
+					offset:i*PHOTO_HEIGHT
+				});
 	}
+	$('#photos h1 span').innerText=titles[album] || album;
 	gebi('thumbnails').innerHTML=a.join(' ');
 	ajax('lists/'+album+'.txt', function(text){
 		var lines=text.split('\n');
 		var links=$$('#thumbnails a');
 		for(var i=0; i<links.length; i++){
-			links[i].href+=lines[i];
+			links[i].href+=lines[i].replace(/^\*/,'');
 		}
 	});
 
@@ -70,8 +88,8 @@ function showOnePhoto(album, photo){
 	ajax('lists/'+album+'.txt', function(text){
 		var lines=text.split('\n');
 		var i=lines.indexOf(photo);
-		left.href=templateData('#{album}/{photo}',{album:album, photo:lines[Math.max(i-1,0)]});
-		right.href=templateData('#{album}/{photo}',{album:album, photo:lines[Math.min(i+1,lines.length-1)]});
+		left.href=templateData('#{album}/{photo}',{album:album, photo:lines[Math.max(i-1,0)].replace(/^\*/,'')});
+		right.href=templateData('#{album}/{photo}',{album:album, photo:lines[Math.min(i+1,lines.length-1)].replace(/^\*/,'')});
 	});
 }
 
@@ -110,7 +128,6 @@ window.onhashchange=function(){
 		gebi('single-photo').style.display='none';
 	} else if(!photo){
 		showOneAlbum(album);
-		$('#photos h1 span').innerText=album;
 		gebi('albums').style.display='none';
 		gebi('photos').style.display='';
 		gebi('single-photo').style.display='none';

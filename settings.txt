@@ -3,4 +3,4 @@ ALBUM_HEIGHT=200
 PHOTO_WIDTH=100
 PHOTO_HEIGHT=100
 
-INDEXES=view.html index.html
+INDEXES="en.html ru.html no.html"

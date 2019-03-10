@@ -12,7 +12,6 @@ NL='
 '
 
 find "$PHOTOS" -type d -printf '%P\n' | LC_ALL=POSIX sort >"$LISTS/_.new"
-# sed 's/|.*//' "$LISTS/_.txt" | LC_ALL=POSIX sort >"$LISTS/_.old"
 LC_ALL=POSIX sort "$LISTS/_.txt" >"$LISTS/_.old"
 
 test -f "$LISTS/_.txt" || touch "$LISTS/_.txt"
@@ -41,14 +40,13 @@ comm -3 $LISTS/_.new $LISTS/_.old | sed '/^[^\t]/{s/^/A /};/^\t/{s/^/D /}' | whi
 			rm -f "$THUMBS/$album.jpg"
 		;;
 	esac
-	rm -f $THUMBS/_.jpg
 done
 
 echo "Detecting photo changes..."
 cat "$LISTS/_.txt" | while read album; do
 	echo "Working on [$album]..."
 	ls -1 "$PHOTOS/$album" | LC_ALL=POSIX sort >"$LISTS/$album.new"
-	LC_ALL=POSIX sort "$LISTS/$album.txt" >"$LISTS/$album.old"
+	sed 's/^\*//' "$LISTS/$album.txt" | LC_ALL=POSIX sort >"$LISTS/$album.old"
 	comm -3 "$LISTS/$album.new" "$LISTS/$album.old" | sed '/^[^\t]/{s/^/A /};/^\t/{s/^/D /}' | while read change photo; do
 		case "$change" in
 			( A ) 
@@ -64,8 +62,9 @@ cat "$LISTS/_.txt" | while read album; do
 				grep -Fvx "$album/$photo|" "$TITLES" >"$TITLES.tmp" && mv "$TITLES.tmp" "$TITLES"
 			;;
 		esac
-		rm -f $THUMBS/$album.jpg
+		rm -f "$THUMBS/$album.jpg"
 	done
+	rm -f "$LISTS/$album.new" "$LISTS/$album.old"
 	if ! test -f $THUMBS/$album.jpg; then
 		echo "Rebuilding thumbnails..."
 		( cd "$PHOTOS/$album"
@@ -76,8 +75,8 @@ done
 
 echo "Building album thumbnails..."
 cat "$LISTS/_.txt" | while read album; do
-	cover="$(grep '^\*' "$LISTS/$album.txt")"
-	test -z "$cover" && cover="$(ls "$PHOTOS/$album" | head -n1)"
+	cover="$(sed '/^\*/!d;s/^\*//' "$LISTS/$album.txt")"
+	test -z "$cover" && cover="$(ls -r "$PHOTOS/$album" | head -n1)"
 	if test -z "$cover"; then
 		echo "Album empty, deleting. PLEASE RUN ME AGAIN"
 		rmdir "$PHOTOS/$album"
@@ -91,8 +90,6 @@ if test -f "$THUMBS/_.jpg" && diff -q >/dev/null "$THUMBS/new" "$THUMBS/_.txt"; 
 	echo "No rebuild needed"
 else
 	echo "Rebuild needed"
-	test -f "$THUMBS/_.jpg" || echo 'not file'
-	diff "$THUMBS/new" "$THUMBS/_.txt" || echo 'not diff'
 	mv "$THUMBS/new" "$THUMBS/_.txt"
 	( cd "$PHOTOS"
 		convert -strip -thumbnail ${ALBUM_WIDTH}x${ALBUM_HEIGHT} -gravity center -extent ${ALBUM_WIDTH}x${ALBUM_HEIGHT} -append @$THUMBS/_.txt $THUMBS/_.jpg
@@ -102,12 +99,26 @@ fi
 echo "Updating HTML files..."
 
 cat "$LISTS/_.txt" | while read album; do
-	echo "$album|$(cat $LISTS/$album.txt | wc -l)"
+	echo "$album|$(cat "$LISTS/$album.txt" | wc -l)"
 done >data.tmp
 
 column=1
 for index in $INDEXES; do
+	echo "Updating [$index]..."
 	sed -i '/<div id="data"/,/<.div>/{/<.\?div.*>/!d}' $index
 	sed -i '/<div id="data"/r data.tmp' $index
+        ((column++))
+        if test "$column" = "2"; then
+                cut -d'|' -s -f1,2 "$TITLES" >titles.tmp
+        else
+                cut -d'|' -s -f1,2,$column "$TITLES" | sed 's/|.*|/|/' >titles.tmp
+        fi
+	sed -i '/<div id="titles"/,/<.div>/{/<.\?div.*>/!d}' $index
+	sed -i '/<div id="titles"/r titles.tmp' $index
+	sed -i "s/^var ALBUM_WIDTH=.*/var ALBUM_WIDTH=$ALBUM_WIDTH;/;
+		s/^var ALBUM_HEIGHT=.*/var ALBUM_HEIGHT=$ALBUM_HEIGHT;/;
+		s/^var PHOTO_WIDTH=.*/var PHOTO_WIDTH=$PHOTO_WIDTH;/;
+		s/^var PHOTO_HEIGHT=.*/var PHOTO_HEIGHT=$PHOTO_HEIGHT;/;" $index
 done
-rm -f data.tmp
+rm -f data.tmp titles.tmp
+
