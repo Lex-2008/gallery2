@@ -70,8 +70,8 @@ function showOneAlbum(album){
 		var links=$$('#thumbnails a');
 		for(var i=0; i<links.length; i++){
 			var line=lines[i];
-			if(line.length==2) {
-				links[i].innerText=line[1];
+			if(line.length>TITLE_COLUMN) {
+				links[i].innerText=line[TITLE_COLUMN];
 			}
 			links[i].href+=line[0];
 		}
