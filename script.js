@@ -87,7 +87,7 @@ function showOnePhoto(album, photo){
 	ajax('lists/'+album+'.txt', function(text){
 		var lines=text.split('\n').map(function(line){return line.replace(/^\^\*?/,'').split('|')[0]});
 		var i=lines.indexOf(photo);
-		side.href=left.href=templateData('#{album}/{photo}',{album:album, photo:lines[Math.max(i-1,0)].replace(/^\*/,'')});
+		left.href=templateData('#{album}/{photo}',{album:album, photo:lines[Math.max(i-1,0)].replace(/^\*/,'')});
 		right.href=templateData('#{album}/{photo}',{album:album, photo:lines[Math.min(i+1,lines.length-1)].replace(/^\*/,'')});
 	});
 }
@@ -97,18 +97,15 @@ window.onresize=function(){
 		setTimeout(window.onresize,10);
 		return false;
 	}
-	var maxWidth=Math.min(window.innerWidth, window.innerHeight*1.5);
-	var windowRatio=maxWidth/window.innerHeight;
+	var windowRatio=window.innerWidth/window.innerHeight;
 	var imageRatio=view.naturalWidth/view.naturalHeight;
 	if(imageRatio > windowRatio){
-		view.width=maxWidth-16;
+		view.width=window.innerWidth-16;
 		view.removeAttribute('height');
 	} else {
 		view.height=window.innerHeight-16;
 		view.removeAttribute('width');
 	}
-	single_photo.style.width=maxWidth+'px';
-	single_photo.style.height=view.height+'px';
 };
 
 window.onhashchange=function(){
@@ -125,18 +122,19 @@ window.onhashchange=function(){
 		showAllAlbums();
 		gebi('albums').style.display='';
 		gebi('photos').style.display='none';
-		gebi('photo-shade').style.display='none';
+		gebi('single-photo').style.display='none';
 	} else if(!photo){
 		showOneAlbum(album);
 		gebi('albums').style.display='none';
 		gebi('photos').style.display='';
-		gebi('photo-shade').style.display='none';
+		gebi('single-photo').style.display='none';
 	} else {
 		showOnePhoto(album, photo);
 		gebi('albums').style.display='none';
 		gebi('photos').style.display='none';
-		gebi('photo-shade').style.display='';
-		window.onresize();
+		gebi('single-photo').style.display='';
+		setTimeout(window.onresize,10);
+		// window.onresize();
 	}
 }
 
@@ -161,7 +159,6 @@ var prev=gebi('prev');
 var left=gebi('left');
 var right=gebi('right');
 var close=gebi('close');
-var side=gebi('side');
 var single_photo=gebi('single-photo');
 
 readData();
@@ -196,7 +193,14 @@ function mainStyle() {/*!
 	text-decoration:none;
 }
 
-#single-photo, #view {
+#single-photo {
+	position:absolute;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+}
+#view {
 	position:absolute;
 	transform: translate(-50%, -50%);
 	top:50%;
@@ -215,12 +219,19 @@ function mainStyle() {/*!
 	left: 25%;
 	right: 0px;
 }
+#close {
+	position:absolute;
+	top: 0px;
+	right: 0px;
+	width: 32px;
+	height: 32px;
+}
 #left span, #right span {
 	position:absolute;
 	transform: translateY(-50%);
 	top: 50%;
-	height: 32px;
 	width: 20px;
+	height: 32px;
 }
 #left span {
 	left: 8px;
@@ -228,40 +239,17 @@ function mainStyle() {/*!
 #right span {
 	right: 8px;
 }
-#close {
-	position:absolute;
-	left: 50%;
-	right: 0px;
-	top: 0px;
-	bottom: 0px;
-}
 #close span {
 	position:absolute;
 	top: 8px;
 	right: 8px;
-}
-#side {
-	position:absolute;
-	left: 0px;
-	right: 50%;
-	top: 0px;
-	bottom: 0px;
-}
-#photo-shade {
-	position: absolute;
-	width: 100%;
-	height: 100%;
-	top: 0px;
-	left: 0px;
-	background: rgba(0,0,0,0.8);
+	width: 19px;
+	height: 16px;
 }
 #single-photo {
 	background: #1e1e1e;
 }
-#left span, #right span, #close span {
-	color: white;
-	text-decoration: none;
-	text-shadow: 0 0 10px black;
+#left span, #right span {
 	transition: 0.3s ease;
 	background-image: url(https://vk.com/images/icons/pv_layer_controls.png);
 }
@@ -278,11 +266,14 @@ function mainStyle() {/*!
 	background-position: 0px -63px;
 }
 #close span {
-	background-position: -3px 0px;
-	width: 16px;
-	height: 16px;
+	color: white;
+	text-decoration: none;
+	text-shadow: 0 0 10px black;
+	font-size: 30pt;
+	line-height: 1ex;
+	transition: 0.3s ease;
 }
-#single-photo:hover span, #single-photo:hover span {
+#single-photo:hover span {
 	opacity: 0.3;
 }
 #left:hover span, #right:hover span, #close:hover span {
@@ -300,13 +291,10 @@ function mainHTML() {/*!
 	<div id="thumbnails">
 	</div>
 </div>
-<div id="photo-shade">
-	<a id="side"><span></span></a>
-	<a id="close"><span></span></a>
-	<div id="single-photo">
-		<img id="view">
-		<a id="left"><span></span></a>
-		<a id="right"><span></span></a>
-	</div>
+<div id="single-photo">
+	<img id="view">
+	<a id="left"><span></span></a>
+	<a id="right"><span></span></a>
+	<a id="close"><span>&times;</span></a>
 </div>
 */};
