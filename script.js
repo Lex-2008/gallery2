@@ -31,17 +31,12 @@ titles={};
 function readData(){
 	var lines=gebi('data').innerText.split('\n');
 	for(var i=1;i<lines.length;i++){ //note that here we ignore first line
-		line=lines[i].split('|');
-		if(line.length!=2) continue;
+		var line=lines[i].split('|');
+		if(line.length!=3) continue;
 		albums.push(line[0]);
-		photos[line[0]]=[];
-		photos[line[0]].length=line[1];
-	}
-	var lines=gebi('titles').innerText.split('\n');
-	for(var i=1;i<lines.length;i++){ //note that here we ignore first line
-		line=lines[i].split('|');
-		if(line.length!=2 || !line[1]) continue;
 		titles[line[0]]=line[1];
+		photos[line[0]]=[];
+		photos[line[0]].length=line[2];
 	}
 }
 
@@ -71,10 +66,14 @@ function showOneAlbum(album){
 	$('#photos h1 span').innerText=titles[album] || album;
 	gebi('thumbnails').innerHTML=a.join(' ');
 	ajax('lists/'+album+'.txt', function(text){
-		var lines=text.split('\n');
+		var lines=text.split('\n').map(function(line){return line.replace(/^\^\*?/,'').split('|')});
 		var links=$$('#thumbnails a');
 		for(var i=0; i<links.length; i++){
-			links[i].href+=lines[i].replace(/^\*/,'');
+			var line=lines[i];
+			if(line.length==2) {
+				links[i].innerText=line[1];
+			}
+			links[i].href+=line[0];
 		}
 	});
 
@@ -86,7 +85,7 @@ function showOnePhoto(album, photo){
 	view.src=templateData('photos/{album}/{photo}',{album:album, photo:photo});
 	close.href="#"+album;
 	ajax('lists/'+album+'.txt', function(text){
-		var lines=text.split('\n');
+		var lines=text.split('\n').map(function(line){return line.replace(/^\^\*?/,'').split('|')[0]});
 		var i=lines.indexOf(photo);
 		left.href=templateData('#{album}/{photo}',{album:album, photo:lines[Math.max(i-1,0)].replace(/^\*/,'')});
 		right.href=templateData('#{album}/{photo}',{album:album, photo:lines[Math.min(i+1,lines.length-1)].replace(/^\*/,'')});
