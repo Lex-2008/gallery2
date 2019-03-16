@@ -87,7 +87,7 @@ function showOnePhoto(album, photo){
 	ajax('lists/'+album+'.txt', function(text){
 		var lines=text.split('\n').map(function(line){return line.replace(/^\^\*?/,'').split('|')[0]});
 		var i=lines.indexOf(photo);
-		left.href=templateData('#{album}/{photo}',{album:album, photo:lines[Math.max(i-1,0)].replace(/^\*/,'')});
+		side.href=left.href=templateData('#{album}/{photo}',{album:album, photo:lines[Math.max(i-1,0)].replace(/^\*/,'')});
 		right.href=templateData('#{album}/{photo}',{album:album, photo:lines[Math.min(i+1,lines.length-1)].replace(/^\*/,'')});
 	});
 }
@@ -97,17 +97,18 @@ window.onresize=function(){
 		setTimeout(window.onresize,10);
 		return false;
 	}
-	var windowRatio=window.innerWidth/window.innerHeight;
+	var maxWidth=Math.min(window.innerWidth, window.innerHeight*1.5);
+	var windowRatio=maxWidth/window.innerHeight;
 	var imageRatio=view.naturalWidth/view.naturalHeight;
 	if(imageRatio > windowRatio){
-		view.width=window.innerWidth-16;
+		view.width=maxWidth-16;
 		view.removeAttribute('height');
 	} else {
 		view.height=window.innerHeight-16;
 		view.removeAttribute('width');
 	}
-	var imageBorder=(window.innerWidth-view.width)/2;
-	view.style.left=imageBorder+'px';
+	single_photo.style.width=maxWidth+'px';
+	single_photo.style.height=view.height+'px';
 };
 
 window.onhashchange=function(){
@@ -124,17 +125,17 @@ window.onhashchange=function(){
 		showAllAlbums();
 		gebi('albums').style.display='';
 		gebi('photos').style.display='none';
-		gebi('single-photo').style.display='none';
+		gebi('photo-shade').style.display='none';
 	} else if(!photo){
 		showOneAlbum(album);
 		gebi('albums').style.display='none';
 		gebi('photos').style.display='';
-		gebi('single-photo').style.display='none';
+		gebi('photo-shade').style.display='none';
 	} else {
 		showOnePhoto(album, photo);
 		gebi('albums').style.display='none';
 		gebi('photos').style.display='none';
-		gebi('single-photo').style.display='';
+		gebi('photo-shade').style.display='';
 		window.onresize();
 	}
 }
@@ -160,6 +161,8 @@ var prev=gebi('prev');
 var left=gebi('left');
 var right=gebi('right');
 var close=gebi('close');
+var side=gebi('side');
+var single_photo=gebi('single-photo');
 
 readData();
 window.onhashchange();
@@ -193,34 +196,97 @@ function mainStyle() {/*!
 	text-decoration:none;
 }
 
-#view, #prev, #next, #left, #right {
+#single-photo, #view {
+	position:absolute;
+	transform: translate(-50%, -50%);
+	top:50%;
+	left:50%;
+}
+#left, #right {
+	position:absolute;
+	top: 0px;
+	bottom: 0px;
+}
+#left {
+	left: 0px;
+	right: 75%;
+}
+#right {
+	left: 25%;
+	right: 0px;
+}
+#left span, #right span {
 	position:absolute;
 	transform: translateY(-50%);
 	top: 50%;
+	height: 32px;
+	width: 20px;
+}
+#left span {
+	left: 8px;
+}
+#right span {
+	right: 8px;
 }
 #close {
 	position:absolute;
+	left: 50%;
+	right: 0px;
+	top: 0px;
+	bottom: 0px;
+}
+#close span {
+	position:absolute;
 	top: 8px;
-}
-#left {
-	left: 8px;
-}
-#close, #right {
 	right: 8px;
 }
-#left, #right, #close {
-	color: white;
-	font-size: 60px;
-	font-weight: bold;
-	text-decoration: none;
-	border-radius: 5px;
-	background-clip: content-box;
-	transition: 0.3s ease;
-	height: 1.33ex;
-	line-height: 1.3ex;
+#side {
+	position:absolute;
+	left: 0px;
+	right: 50%;
+	top: 0px;
+	bottom: 0px;
 }
-:hover #left, :hover #right, :hover #close {
-	background-color: rgba(0,0,0,0.8);
+#photo-shade {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0px;
+	left: 0px;
+	background: rgba(0,0,0,0.8);
+}
+#single-photo {
+	background: #1e1e1e;
+}
+#left span, #right span, #close span {
+	color: white;
+	text-decoration: none;
+	text-shadow: 0 0 10px black;
+	transition: 0.3s ease;
+	background-image: url(https://vk.com/images/icons/pv_layer_controls.png);
+}
+#left span, #right span {
+	opacity: 0;
+}
+#close span {
+	opacity: 0.5;
+}
+#left span {
+	background-position: 0px -25px;
+}
+#right span {
+	background-position: 0px -63px;
+}
+#close span {
+	background-position: -3px 0px;
+	width: 16px;
+	height: 16px;
+}
+#single-photo:hover span, #single-photo:hover span {
+	opacity: 0.3;
+}
+#left:hover span, #right:hover span, #close:hover span {
+	opacity: 1 !important;
 }
 */};
 
@@ -234,10 +300,13 @@ function mainHTML() {/*!
 	<div id="thumbnails">
 	</div>
 </div>
-<div id="single-photo">
-	<img id="view">
-	<a id="left">&lt;</a>
-	<a id="right">&gt;</a>
-	<a id="close">&times;</a>
+<div id="photo-shade">
+	<a id="side"><span></span></a>
+	<a id="close"><span></span></a>
+	<div id="single-photo">
+		<img id="view">
+		<a id="left"><span></span></a>
+		<a id="right"><span></span></a>
+	</div>
 </div>
 */};
