@@ -246,6 +246,11 @@ function mainStyle() {/*!
 	width: 19px;
 	height: 16px;
 }
+#albums a, #thumbnails a {
+	font: 400 18px 'Open Sans', arial;
+	text-decoration: none;
+	color: black;
+}
 #single-photo {
 	background: #1e1e1e;
 }
