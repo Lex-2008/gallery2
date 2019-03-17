@@ -62,7 +62,7 @@
 	width: 19px;
 	height: 16px;
 }
-#albums a, #thumbnails a {
+#thumbs div a {
 	font: 400 18px 'Open Sans', arial;
 	text-decoration: none;
 	color: black;
