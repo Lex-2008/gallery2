@@ -138,6 +138,8 @@ window.onresize=function(){
 	}
 };
 
+albumsState=false;
+albumsScroll=0;
 window.onhashchange=function(){
 	var loc=decodeURIComponent(location.hash.slice(1));
 	var i=loc.lastIndexOf('/'); //IE6+
@@ -152,10 +154,19 @@ window.onhashchange=function(){
 		showAllAlbums();
 		$('#thumbs h1').style.display='none';
 		gebi('single-photo').style.display='none';
+		albumsState=true;
+		document.body.parentElement.scrollTop=albumsScroll;
 	} else if(!photo){
+		if(albumsState){
+			albumsScroll=document.body.parentElement.scrollTop;
+		}
 		showOneAlbum(album);
 		$('#thumbs h1').style.display='';
 		gebi('single-photo').style.display='none';
+		if(albumsState){
+			albumsState=false;
+			document.body.parentElement.scrollTop=Math.min(document.body.parentElement.scrollTop,gebi('thumbs').offsetTop);
+		}
 	} else {
 		showOnePhoto(album, photo);
 		gebi('single-photo').style.display='';
