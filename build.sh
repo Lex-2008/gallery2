@@ -10,6 +10,14 @@ SETTINGS="$PWD/settings.txt"
 NL='
 '
 
+if test "$(uname -o)" = "Cygwin"; then
+	GM_THUMBS="$(cygpath -w "$THUMBS")"
+else
+	GM_THUMBS="$THUMBS"
+fi
+
+test -z "GM" && GM=gm
+
 test -f "$LISTS/_.txt" || touch "$LISTS/_.txt"
 sed -i '/^[^^]/s/^/^/' "$LISTS/_.txt"
 
@@ -64,11 +72,11 @@ cat "$LISTS/_.new" | while read album; do
 		rm -f "$THUMBS/$album.jpg"
 	done
 	rm -f "$LISTS/$album.new" "$LISTS/$album.old"
-	if ! test -f $THUMBS/$album.jpg; then
+	if ! test -f "$THUMBS/$album.jpg"; then
 		echo "Rebuilding thumbnails..."
 		sed 's/^^\*\?//;s/|.*//' "$LISTS/$album.txt" >"$THUMBS/$album.txt"
 		( cd "$PHOTOS/$album"
-			convert -strip -thumbnail ${PHOTO_WIDTH}x${PHOTO_HEIGHT} -gravity center -extent ${PHOTO_WIDTH}x${PHOTO_HEIGHT} -append @$THUMBS/$album.txt $THUMBS/$album.jpg
+			"$GM" convert -strip -thumbnail ${PHOTO_WIDTH}x${PHOTO_HEIGHT} -gravity center -extent ${PHOTO_WIDTH}x${PHOTO_HEIGHT} -append @"$GM_THUMBS/$album.txt" "$GM_THUMBS/$album.jpg"
 		)
 	fi
 done
@@ -92,7 +100,7 @@ else
 	echo "Rebuild needed"
 	mv "$THUMBS/_.new" "$THUMBS/_.txt"
 	( cd "$PHOTOS"
-		convert -strip -thumbnail ${ALBUM_WIDTH}x${ALBUM_HEIGHT} -gravity center -extent ${ALBUM_WIDTH}x${ALBUM_HEIGHT} -append @$THUMBS/_.txt $THUMBS/_.jpg
+		"$GM" convert -strip -thumbnail ${ALBUM_WIDTH}x${ALBUM_HEIGHT} -gravity center -extent ${ALBUM_WIDTH}x${ALBUM_HEIGHT} -append @"$GM_THUMBS/_.txt" "$GM_THUMBS/_.jpg"
 	)
 fi
 
