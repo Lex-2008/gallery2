@@ -1,0 +1,102 @@
+#thumbs div{
+	text-align: center;
+}
+#thumbs div a{
+	display:inline-block;
+}
+
+#thumbs h1 a{
+	text-decoration:none;
+}
+
+#single-photo {
+	position:fixed;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+}
+#view {
+	position:absolute;
+	transform: translate(-50%, -50%);
+	top:50%;
+	left:50%;
+}
+#left, #right {
+	position:absolute;
+	top: 0px;
+	bottom: 0px;
+}
+#left {
+	left: 0px;
+	right: 75%;
+}
+#right {
+	left: 25%;
+	right: 0px;
+}
+#close {
+	position:absolute;
+	top: 0px;
+	right: 0px;
+	width: 32px;
+	height: 32px;
+}
+#left span, #right span {
+	position:absolute;
+	transform: translateY(-50%);
+	top: 50%;
+	width: 20px;
+	height: 32px;
+}
+#left span {
+	left: 8px;
+}
+#right span {
+	right: 8px;
+}
+#close span {
+	position:absolute;
+	top: 8px;
+	right: 8px;
+	width: 19px;
+	height: 16px;
+}
+#albums a, #thumbnails a {
+	font: 400 18px 'Open Sans', arial;
+	text-decoration: none;
+	color: black;
+}
+#single-photo {
+	background: #1e1e1e;
+}
+#left span, #right span {
+	transition: 0.3s ease;
+	background-image: url(https://vk.com/images/icons/pv_layer_controls.png);
+}
+#left span, #right span {
+	opacity: 0;
+}
+#close span {
+	opacity: 0.5;
+}
+#left span {
+	background-position: 0px -25px;
+}
+#right span {
+	background-position: 0px -63px;
+}
+#close span {
+	color: white;
+	text-decoration: none;
+	text-shadow: 0 0 10px black;
+	font-size: 30pt;
+	line-height: 1ex;
+	transition: 0.3s ease;
+}
+#single-photo:hover span {
+	opacity: 0.3;
+}
+#left:hover span, #right:hover span, #close:hover span {
+	opacity: 1 !important;
+}

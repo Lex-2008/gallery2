@@ -101,17 +101,19 @@ echo "Updating HTML files..."
 column=1
 for index in $INDEXES; do
 	echo "Updating [$index]..."
-	sed -i '/<div id="data"/,/<.div>/{/<.\?div.*>/!d}' $index
+	sed -i '/<script id="data"/,/<.script>/{/<.\?script.*>/!d}' $index
         ((column++))
+	echo "var ALBUM_WIDTH=$ALBUM_WIDTH;
+		var ALBUM_HEIGHT=$ALBUM_HEIGHT;
+		var PHOTO_WIDTH=$PHOTO_WIDTH;
+		var PHOTO_HEIGHT=$PHOTO_HEIGHT;
+		var TITLE_COLUMN=$column;
+		albumize(function f(){/*" >data.tmp
 	cut -d'|' -s -f1,2,$column "$LISTS/_.txt" | sed 's/^^//;s/|.*|/|/' | while IFS='|' read album title; do
 		echo "$album|$title|$(cat "$LISTS/$album.txt" | wc -l)"
-	done >data.tmp
-	sed -i '/<div id="data"/r data.tmp' $index
-	sed -i "s/^var ALBUM_WIDTH=.*/var ALBUM_WIDTH=$ALBUM_WIDTH;/;
-		s/^var ALBUM_HEIGHT=.*/var ALBUM_HEIGHT=$ALBUM_HEIGHT;/;
-		s/^var PHOTO_WIDTH=.*/var PHOTO_WIDTH=$PHOTO_WIDTH;/;
-		s/^var PHOTO_HEIGHT=.*/var PHOTO_HEIGHT=$PHOTO_HEIGHT;/;
-		s/^var TITLE_COLUMN=.*/var TITLE_COLUMN=$column;/;" $index
+	done >>data.tmp
+	echo '*/});' >>data.tmp
+	sed -i '/<script id="data"/r data.tmp' $index
 done
 
 rm "$LISTS/_.new" "$LISTS/_.old" data.tmp
