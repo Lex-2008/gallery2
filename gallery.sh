@@ -16,7 +16,7 @@ else
 	GM_THUMBS="$THUMBS"
 fi
 
-test -z "GM" && GM=gm
+test -z "$GM" && GM=gm
 
 test -f "$LISTS/_.txt" || touch "$LISTS/_.txt"
 sed -i '/^[^^]/s/^/^/' "$LISTS/_.txt"
