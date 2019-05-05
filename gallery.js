@@ -111,8 +111,16 @@ function showOneAlbum(album){
 
 function showOnePhoto(album, photo){
 	// https://bugs.chromium.org/p/chromium/issues/detail?id=468915#c6
-	view.src='';
-	view.src=templateData('photos/{album}/{photo}',{album:album, photo:photo});
+	next.src='';
+	next.onload=function(){
+		var tmp=view;
+		view=next;
+		next=tmp;
+		window.onresize();
+	}
+	next.src=templateData('photos/{album}/{photo}',{album:album, photo:photo});
+	view.style.opacity=0;
+	next.style.opacity=1;
 	close.href="#"+album;
 	ajax('lists/'+album+'.txt', function(text){
 		var lines=text.split('\n').map(function(line){return line.replace(/^\^\*?/,'').split('|')[0]});
@@ -170,7 +178,7 @@ window.onhashchange=function(){
 	} else {
 		showOnePhoto(album, photo);
 		gebi('single-photo').style.display='';
-		setTimeout(window.onresize,10);
+		// setTimeout(window.onresize,10);
 		// window.onresize();
 	}
 }
@@ -181,7 +189,8 @@ function albumize(f){
 	main_html = gebi('gallery');
 	main_html.innerHTML = hereDoc(mainHTML);
 	thumbs=gebi('thumbs');
-	view=gebi('view');
+	view=gebi('view1');
+	next=gebi('view2');
 	left=gebi('left');
 	right=gebi('right');
 	close=gebi('close');
@@ -199,7 +208,8 @@ function mainHTML() {/*!
 	<div></div>
 </div>
 <div id="single-photo">
-	<img id="view">
+	<img id="view1">
+	<img id="view2">
 	<a id="left"><span></span></a>
 	<a id="right"><span></span></a>
 	<a id="close"><span>&times;</span></a>
